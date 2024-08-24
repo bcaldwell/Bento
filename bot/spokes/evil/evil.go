@@ -51,7 +51,7 @@ So, here’s my justice: next time, just let me stay and watch the bot show! �
 }
 
 func (p *Evil) Handler() interface{} {
-	return func(s *discordgo.Session, m *discordgo.MessageCreate) {
+	return func(s *discordgo.Session, m *discordgo.MessageCreate, r *discordgo.MessageReactionAdd) {
 		if m.Author.ID == s.State.User.ID {
 			return
 		}
@@ -65,6 +65,12 @@ func (p *Evil) Handler() interface{} {
 				time.Sleep(250 * time.Millisecond)
 			}
 			s.ChannelMessageSend(m.ChannelID, dialogues.ToddPhrases[n])
+		}
+
+		// Check if the reaction is the brick emoji 🧱
+		if r.Emoji.Name == "🧱" {
+			// Send a message in the same channel where the reaction was added
+			s.ChannelMessageSend(r.ChannelID, dialogues.BrickPhrases[rand.Int()%len(dialogues.BrickPhrases)])
 		}
 	}
 }
