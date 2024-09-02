@@ -36,5 +36,5 @@ workflows:
             - release-docker
           filters:
             branches:
-              only: master
+              only: main
           context: k8s-config-cd-trigger
