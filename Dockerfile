@@ -15,7 +15,7 @@ COPY *.go ./
 COPY bot ./bot
 
 # Build
-RUN CGO_ENABLED=0 GOOS=linux go build -o /bento -x
+RUN CGO_ENABLED=0 GOOS=linux go build -o /bento
 
 # Stage 2: Runtime
 FROM alpine:latest

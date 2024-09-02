@@ -4,7 +4,6 @@ import (
 	"main/bot"
 	"math/rand"
 	"strings"
-	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
