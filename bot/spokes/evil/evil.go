@@ -27,7 +27,7 @@ func (p *Evil) Commands() bot.BotCommandMap {
 
 	cmdMap["fight"] = func(s *discordgo.Session, m *discordgo.MessageCreate) {
 		p.fightChannel = m.ChannelID
-		s.ChannelMessageSend(m.ChannelID, "@Bento are you a man of a muppet?")
+		s.ChannelMessageSend(m.ChannelID, "@Bento are you a man or a muppet?")
 	}
 	cmdMap["standdown"] = func(s *discordgo.Session, m *discordgo.MessageCreate) {
 		p.fightChannel = ""
