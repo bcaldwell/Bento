@@ -212,6 +212,6 @@ func helpResponse(cmdList []string) func(s *discordgo.Session, m *discordgo.Mess
 
 	cmdString := strings.Join(cmdList, "\n")
 	return func(s *discordgo.Session, m *discordgo.MessageCreate) {
-		s.ChannelMessageSendReply(m.ChannelID, fmt.Sprintf("%s commands:\n%s", BotName, cmdString), m.MessageReference)
+		s.ChannelMessageSendReply(m.ChannelID, fmt.Sprintf("%s commands:\n%s", BotName, cmdString), m.SoftReference())
 	}
 }
