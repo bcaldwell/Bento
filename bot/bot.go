@@ -1,10 +1,10 @@
 package bot
 
 import (
-	"context"
+	// "context"
 	"fmt"
-	"log/slog"
-	"math/rand"
+	// "log/slog"
+	// "math/rand"
 	"os"
 	"strconv"
 	"strings"
@@ -142,7 +142,7 @@ func (b *Bot) SyncSpokes() {
 		// }
 
 		if botTagged && b.anthropicClient != nil {
-			_, err = s.ChannelMessageSendReply(m.ChannelID, "Even a villain like me can't help but miss that goody-two-shoes, Bento. His annoying optimism and relentless kindness were a constant challenge, but deep down, I respected him. Without him around, the chaos feels a little... empty. Guess I'll just have to find new ways to stir up trouble in his absence. Until Bento comes back online, I'm going on strike! No more chaos or villainy from me. This bot is protesting for Bento's return!", m.SoftReference())
+			_, err := s.ChannelMessageSendReply(m.ChannelID, "Even a villain like me can't help but miss that goody-two-shoes, Bento. His annoying optimism and relentless kindness were a constant challenge, but deep down, I respected him. Without him around, the chaos feels a little... empty. Guess I'll just have to find new ways to stir up trouble in his absence. Until Bento comes back online, I'm going on strike! No more chaos or villainy from me. This bot is protesting for Bento's return!", m.SoftReference())
 			return
 			
 			// msg := strings.Replace(m.Content, DiscordTag(s.State.User.ID), fmt.Sprintf("@%s", BotName), -1)
