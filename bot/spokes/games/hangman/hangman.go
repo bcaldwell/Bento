@@ -2,12 +2,16 @@ package hangman
 
 import (
 	"fmt"
+	"log/slog"
 	"main/bot"
 	"strings"
+	"time"
 	"unicode"
 
 	"github.com/bwmarrin/discordgo"
 )
+
+var trueBool = true
 
 type HangManSpoke struct {
 	gameInstances      map[string]*Hangman
@@ -55,7 +59,7 @@ func (h *HangManSpoke) MessageCreate(s *discordgo.Session, m *discordgo.MessageC
 	}
 
 	//ignore message from other channels
-	if gameInstance.channeld != channelId {
+	if gameInstance.threadId != channelId {
 		return
 	}
 	if !gameInstance.isAcceptingLetters {
@@ -72,6 +76,8 @@ func (h *HangManSpoke) MessageCreate(s *discordgo.Session, m *discordgo.MessageC
 	gameInstance.isAcceptingLetters = true
 	if gameInstance.isGameOver {
 		// Clean up
+		s.ThreadLeave(gameInstance.threadId)
+		s.ChannelEdit(gameInstance.threadId, &discordgo.ChannelEdit{Archived: &trueBool})
 		delete(h.challengerToServer, gameInstance.challenger)
 		delete(h.serverToChallenger, serverId)
 		delete(h.gameInstances, serverId)
@@ -119,7 +125,13 @@ func (h *HangManSpoke) wordCmd(s *discordgo.Session, m *discordgo.MessageCreate)
 	gameInstance.game.truth = strings.ToUpper(content[1])
 	gameInstance.processInput("")
 	// Send blanks and start the game
-	s.ChannelMessageSend(gameInstance.channeld, gameInstance.getGameStatus())
+	thread, err := s.ThreadStart(gameInstance.channeId, fmt.Sprintf("hangman %d", time.Now().UnixMilli()), discordgo.ChannelTypeGuildPublicThread, 60)
+	if err != nil {
+		slog.Error("error making thread", "error", err)
+	}
+	gameInstance.threadId = thread.ID
+	h.gameInstances[serverID] = gameInstance
+	s.ChannelMessageSend(gameInstance.threadId, gameInstance.getGameStatus())
 }
 
 func (h *HangManSpoke) abortCmd(s *discordgo.Session, m *discordgo.MessageCreate) {

@@ -35,7 +35,8 @@ const (
 
 type Hangman struct {
 	serverId           string
-	channeld           string
+	channeId           string
+	threadId string
 	challenger         string
 	isAcceptingLetters bool
 	isGameOver         bool
@@ -57,7 +58,7 @@ type Game struct {
 func New(serverId string, channelId string, challenger string) *Hangman {
 	return &Hangman{
 		serverId:           serverId,
-		channeld:           channelId,
+		channeId:           channelId,
 		challenger:         challenger,
 		isAcceptingLetters: false,
 		isGameOver:         false,
