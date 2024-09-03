@@ -133,6 +133,7 @@ func (b *Bot) SyncSpokes() {
 			return
 		}
 
+		_, botTagged := getTriggerCommand(s, m)
 		// triggeredCmd, botTagged := getTriggerCommand(s, m)
 		// fn, ok := cmdMap[triggeredCmd]
 		// if ok {
