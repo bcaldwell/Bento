@@ -178,7 +178,10 @@ func (b *Bot) SyncSpokes() {
 			if err != nil {
 				slog.Error("error calling LLM", "err", err)
 			}
-			s.ChannelMessageSendReply(m.ChannelID, resp.Content[0].GetText(), m.MessageReference)
+			_, err = s.ChannelMessageSendReply(m.ChannelID, resp.Content[0].GetText(), m.SoftReference())
+			if err != nil {
+				slog.Error("sending llm reply", "error", err)
+			}
 		}
 	})
 }

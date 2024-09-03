@@ -64,7 +64,7 @@ func (p *Evil) MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if strings.Contains(strings.ToLower(m.Content), strings.ToLower("muppet")) {
 		time.Sleep(250 * time.Millisecond)
-		sendMessageFromList(s, m.MessageReference, dialogues.ToddPhrases)
+		sendMessageFromList(s, m.SoftReference(), dialogues.ToddPhrases)
 	}
 }
 
