@@ -178,7 +178,7 @@ func (b *Bot) SyncSpokes() {
 			if err != nil {
 				slog.Error("error calling LLM", "err", err)
 			}
-			s.ChannelMessageSend(m.ChannelID, resp.Content[0].GetText())
+			s.ChannelMessageSendReply(m.ChannelID, resp.Content[0].GetText(), m.MessageReference)
 		}
 	})
 }
@@ -209,6 +209,6 @@ func helpResponse(cmdList []string) func(s *discordgo.Session, m *discordgo.Mess
 
 	cmdString := strings.Join(cmdList, "\n")
 	return func(s *discordgo.Session, m *discordgo.MessageCreate) {
-		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s commands:\n%s", BotName, cmdString))
+		s.ChannelMessageSendReply(m.ChannelID, fmt.Sprintf("%s commands:\n%s", BotName, cmdString), m.MessageReference)
 	}
 }
