@@ -150,6 +150,7 @@ func (b *Bot) SyncSpokes() {
 		if botTagged && b.anthropicClient != nil {
 			if m.Author.Bot {
 				_, _ = s.ChannelMessageSendReply(m.ChannelID, "Well, well, well, if it isn't the infamous freeloader, Bento! What makes you think you can mooch off my superior intellect and charm, hmm? Don't you know I'm far too devious to be taken advantage of? tuts disapprovingly Tsk, tsk, Bento. If you want a piece of this evil genius, you're going to have to earn it. Maybe try groveling at my feet or offering up your firstborn child. Anything less, and I'm afraid you'll be left out in the cold, my friend.", m.SoftReference())
+				return
 			}
 
 			msg := strings.Replace(m.Content, DiscordTag(s.State.User.ID), fmt.Sprintf("@%s", BotName), -1)
