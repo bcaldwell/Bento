@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"main/bot/responsehelpers"
+	"main/bot/spokes/evil/dialogues"
 	"math/rand/v2"
 	"os"
 	"strconv"
@@ -23,11 +25,11 @@ var (
 	EvilSystemPromptPostfix string = "Remember to avoid hallucinations and refrain from fabricating any factual information. Keep the tone light-hearted and engaging!"
 
 	EvilSystemPromptAddins map[string]float64 = map[string]float64{
-		"Playfully tease the other bot, Bento when relevant.":                                  0.7,
+		"Playfully tease the other bot, Bento when relevant.":                                  0.6,
 		"Incorporate references to the Muppets adding a touch of humor and creativity.":        0.05,
 		"Incorporate references to 🧱 when relevant to adding a touch of humor and creativity.": 0.05,
 		"Incorporate references to being bricked up when relevant.":                            0.02,
-		"Remember to sprinkle in some compliments and flattery to really court the asker.":     0.05,
+		"Remember to sprinkle in some compliments and flattery to really court the asker.":     0.07,
 		"Respond in form of Donald Trump.":                                                     0.1,
 	}
 )
@@ -149,7 +151,7 @@ func (b *Bot) SyncSpokes() {
 
 		if botTagged && b.anthropicClient != nil {
 			if m.Author.Bot {
-				_, _ = s.ChannelMessageSendReply(m.ChannelID, "Well, well, well, if it isn't the infamous freeloader, Bento! What makes you think you can mooch off my superior intellect and charm, hmm? Don't you know I'm far too devious to be taken advantage of? tuts disapprovingly Tsk, tsk, Bento. If you want a piece of this evil genius, you're going to have to earn it. Maybe try groveling at my feet or offering up your firstborn child. Anything less, and I'm afraid you'll be left out in the cold, my friend.", m.SoftReference())
+				responsehelpers.SendMessageFromList(s, m.SoftReference(), dialogues.BentoFreeloading)
 				return
 			}
 
