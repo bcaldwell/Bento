@@ -30,7 +30,7 @@ var (
 		"Incorporate references to 🧱 when relevant to adding a touch of humor and creativity.": 0.05,
 		"Incorporate references to being bricked up when relevant.":                            0.02,
 		"Remember to sprinkle in some compliments and flattery to really court the asker.":     0.07,
-		"Respond in form of Donald Trump.":                                                     0.1,
+		"Respond in form of Donald Trump.":                                                     1,
 	}
 )
 
