@@ -226,6 +226,14 @@ func helpResponse(cmdList []string) func(s *discordgo.Session, m *discordgo.Mess
 
 	cmdString := strings.Join(cmdList, "\n")
 	return func(s *discordgo.Session, m *discordgo.MessageCreate) {
-		s.ChannelMessageSendReply(m.ChannelID, fmt.Sprintf(":grimacepeeking: %s commands:\n%s", BotName, cmdString), m.SoftReference())
+		ee, _ := s.GuildEmojis(m.GuildID)
+		emoji := ""
+		for _, e := range ee {
+			if e.Name == "grimacepeeking" {
+				emoji = e.MessageFormat() + " "
+			}
+		}
+
+		s.ChannelMessageSendReply(m.ChannelID, fmt.Sprintf("%s%s commands:\n%s", emoji, BotName, cmdString), m.SoftReference())
 	}
 }
