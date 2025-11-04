@@ -169,7 +169,7 @@ func (b *Bot) SyncSpokes() {
 					llmMessages = append(llmMessages, anthropic.NewAssistantTextMessage(msg))
 					continue
 				}
-				llmMessages = append(llmMessages, anthropic.NewUserTextMessage(fmt.Sprintf("<author_id>%s</author_id><author_name>%s</author_name>\n<message>%s</message>", message.Author.ID, message.Author.Username, msg)))
+				llmMessages = append(llmMessages, anthropic.NewUserTextMessage(fmt.Sprintf("<author_id>%s</author_id><author_name>%s</author_name>\n<message>%s</message>", message.Author.ID, message.Author.GlobalName, msg)))
 			}
 
 			systemParts := []string{EvilSystemPromptPrefix}
