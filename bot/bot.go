@@ -155,6 +155,18 @@ func (b *Bot) SyncSpokes() {
 				return
 			}
 
+			// if m.Type == discordgo.MessageTypeReply && m.MessageReference != nil {
+			// replyChain, err := getReplyChain(s, m.ChannelID, m.MessageReference.MessageID)
+			// if err != nil {
+			// 	slog.Error("Failed to get reply chain", "err", err)
+			// 	return
+			// }
+			// messages := []string{}
+			// for _, msg := range replyChain {
+			// 	messages = append(messages, msg.Content)
+			// }
+			// slog.Info("get chain", "messages", messages)
+			//
 			msg := strings.Replace(m.Content, DiscordTag(s.State.User.ID), fmt.Sprintf("@%s", BotName), -1)
 
 			systemParts := []string{EvilSystemPromptPrefix}
@@ -172,7 +184,7 @@ func (b *Bot) SyncSpokes() {
 			slog.Info("Sending to LLM", "user", m.Author.Username, "system", system, "msg", msg)
 
 			resp, err := b.anthropicClient.CreateMessages(context.Background(), anthropic.MessagesRequest{
-				Model:  anthropic.ModelClaude3Haiku20240307,
+				Model:  anthropic.ModelClaudeHaiku4Dot5,
 				System: system,
 				// MultiSystem: []anthropic.MessageSystemPart{
 				// 	{
@@ -191,6 +203,7 @@ func (b *Bot) SyncSpokes() {
 			})
 			if err != nil {
 				slog.Error("error calling LLM", "err", err)
+				return
 			}
 			_, err = s.ChannelMessageSendReply(m.ChannelID, resp.Content[0].GetText(), m.SoftReference())
 			if err != nil {
@@ -198,6 +211,33 @@ func (b *Bot) SyncSpokes() {
 			}
 		}
 	})
+}
+
+func getReplyChain(s *discordgo.Session, channelID, messageID string) ([]*discordgo.Message, error) {
+	var chain []*discordgo.Message
+
+	currentMessageID := messageID
+
+	for currentMessageID != "" {
+		// Fetch the current message
+		msg, err := s.ChannelMessage(channelID, currentMessageID)
+		if err != nil {
+			return chain, err
+		}
+
+		// Add to chain
+		chain = append(chain, msg)
+
+		// Check if this message is also a reply
+		if msg.MessageReference != nil {
+			currentMessageID = msg.MessageReference.MessageID
+		} else {
+			// End of chain
+			break
+		}
+	}
+
+	return chain, nil
 }
 
 // getTriggerCommand returns the bot trigger command, along with if the bot was tagged in the message or not
