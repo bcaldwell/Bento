@@ -155,19 +155,22 @@ func (b *Bot) SyncSpokes() {
 				return
 			}
 
-			// if m.Type == discordgo.MessageTypeReply && m.MessageReference != nil {
-			// replyChain, err := getReplyChain(s, m.ChannelID, m.MessageReference.MessageID)
-			// if err != nil {
-			// 	slog.Error("Failed to get reply chain", "err", err)
-			// 	return
-			// }
-			// messages := []string{}
-			// for _, msg := range replyChain {
-			// 	messages = append(messages, msg.Content)
-			// }
-			// slog.Info("get chain", "messages", messages)
-			//
-			msg := strings.Replace(m.Content, DiscordTag(s.State.User.ID), fmt.Sprintf("@%s", BotName), -1)
+			messageChain, err := getMessageChain(s, m.Message)
+			if err != nil {
+				slog.Error("Failed to get message chain", "err", err)
+				return
+			}
+
+			llmMessages := []anthropic.Message{}
+			for i := len(messageChain) - 1; i >= 0; i-- {
+				message := messageChain[i]
+				msg := strings.Replace(message.Content, DiscordTag(s.State.User.ID), fmt.Sprintf("@%s", BotName), -1)
+				if message.Author.ID == s.State.User.ID {
+					llmMessages = append(llmMessages, anthropic.NewAssistantTextMessage(msg))
+					continue
+				}
+				llmMessages = append(llmMessages, anthropic.NewUserTextMessage(fmt.Sprintf("<author_id>%s</author_id><author_name>%s</author_name>\n<message>%s</message>", message.Author.ID, message.Author.Username, msg)))
+			}
 
 			systemParts := []string{EvilSystemPromptPrefix}
 			for addin, p := range EvilSystemPromptAddins {
@@ -181,24 +184,21 @@ func (b *Bot) SyncSpokes() {
 			)
 			system := strings.Join(systemParts, " ")
 
-			slog.Info("Sending to LLM", "user", m.Author.Username, "system", system, "msg", msg)
+			msgLog := []string{}
+			for _, msg := range llmMessages {
+				for _, content := range msg.Content {
+					if content.Text == nil {
+						continue
+					}
+					msgLog = append(msgLog, *content.Text)
+				}
+			}
+			slog.Info("Sending to LLM", "user", m.Author.Username, "system", system, "msg", msgLog)
 
 			resp, err := b.anthropicClient.CreateMessages(context.Background(), anthropic.MessagesRequest{
-				Model:  anthropic.ModelClaudeHaiku4Dot5,
-				System: system,
-				// MultiSystem: []anthropic.MessageSystemPart{
-				// 	{
-				// 		Type: "text",
-				// 		Text: EvilSystemPrompts[n],
-				// 		// prompt is too short to cache
-				// 		// CacheControl: &anthropic.MessageCacheControl{
-				// 		// 	Type: anthropic.CacheControlTypeEphemeral,
-				// 		// },
-				// 	},
-				// },
-				Messages: []anthropic.Message{
-					anthropic.NewUserTextMessage(msg),
-				},
+				Model:     anthropic.ModelClaudeHaiku4Dot5,
+				System:    system,
+				Messages:  llmMessages,
 				MaxTokens: 300,
 			})
 			if err != nil {
@@ -213,28 +213,26 @@ func (b *Bot) SyncSpokes() {
 	})
 }
 
-func getReplyChain(s *discordgo.Session, channelID, messageID string) ([]*discordgo.Message, error) {
-	var chain []*discordgo.Message
+func getMessageChain(s *discordgo.Session, message *discordgo.Message) ([]*discordgo.Message, error) {
+	chain := []*discordgo.Message{message}
+	if message.MessageReference == nil {
+		return chain, nil
+	}
 
-	currentMessageID := messageID
+	currentMessageID := message.MessageReference.MessageID
 
 	for currentMessageID != "" {
-		// Fetch the current message
-		msg, err := s.ChannelMessage(channelID, currentMessageID)
+		msg, err := s.ChannelMessage(message.ChannelID, currentMessageID)
 		if err != nil {
 			return chain, err
 		}
 
-		// Add to chain
 		chain = append(chain, msg)
 
-		// Check if this message is also a reply
-		if msg.MessageReference != nil {
-			currentMessageID = msg.MessageReference.MessageID
-		} else {
-			// End of chain
+		if msg.MessageReference == nil {
 			break
 		}
+		currentMessageID = msg.MessageReference.MessageID
 	}
 
 	return chain, nil
